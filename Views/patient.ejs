@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Patients List</title>
+</head>
+
+<body>
+    <h1>List of Patients</h1>
+    <ul>
+        <% patients.forEach(patient=> { %>
+            <li>
+                <strong>ID:</strong>
+                <%= patient.patient_id %>,
+                    <strong>Name:</strong>
+                    <%= patient.first_name %>
+                        <%= patient.last_name %>,
+                            <strong>Date of Birth:</strong>
+                            <%= patient.date_of_birth %>
+            </li>
+            <% }); %>
+    </ul>
+</body>
+
+</html>

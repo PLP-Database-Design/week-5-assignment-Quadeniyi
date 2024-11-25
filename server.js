@@ -3,11 +3,11 @@ const mysql = require("mysql2");
 const dotenv = require("dotenv");
 const app = express();
 
-// Load environment variables from .env file
+// Load environment variables
 dotenv.config();
 
-// Middleware for parsing JSON
-app.use(express.json());
+// Set up EJS as the templating engine
+app.set("view engine", "ejs");
 
 // Database connection
 const db = mysql.createConnection({
@@ -32,10 +32,10 @@ app.get("/patients", (req, res) => {
     "SELECT patient_id, first_name, last_name, date_of_birth FROM patients";
   db.query(query, (err, results) => {
     if (err) {
-      res.status(500).json({ error: "Error retrieving patients" });
-      return;
+      return res.status(500).send("Database error");
     }
-    res.status(200).json(results);
+    // Render the results using an EJS template
+    res.render("patients", { patients: results });
   });
 });
 
@@ -45,42 +45,40 @@ app.get("/providers", (req, res) => {
     "SELECT first_name, last_name, provider_specialty FROM providers";
   db.query(query, (err, results) => {
     if (err) {
-      res.status(500).json({ error: "Error retrieving providers" });
-      return;
+      return res.status(500).send("Database error");
     }
-    res.status(200).json(results);
+    // Render the results using an EJS template
+    res.render("providers", { providers: results });
   });
 });
 
 // 3. Filter patients by First Name
-app.get("/patients/:first_name", (req, res) => {
-  const { first_name } = req.params;
+app.get("/patients/filter", (req, res) => {
+  const { firstName } = req.query;
   const query =
     "SELECT patient_id, first_name, last_name, date_of_birth FROM patients WHERE first_name = ?";
-  db.query(query, [first_name], (err, results) => {
+
+  db.query(query, [firstName], (err, results) => {
     if (err) {
-      res
-        .status(500)
-        .json({ error: "Error retrieving patients by first name" });
-      return;
+      return res.status(500).send("Database error");
     }
-    res.status(200).json(results);
+    // Render the results using an EJS template
+    res.render("filtered_patients", { patients: results, firstName });
   });
 });
 
 // 4. Retrieve all providers by their specialty
-app.get("/providers/specialty/:specialty", (req, res) => {
-  const { specialty } = req.params;
+app.get("/providers/filter", (req, res) => {
+  const { specialty } = req.query;
   const query =
     "SELECT first_name, last_name, provider_specialty FROM providers WHERE provider_specialty = ?";
+
   db.query(query, [specialty], (err, results) => {
     if (err) {
-      res
-        .status(500)
-        .json({ error: "Error retrieving providers by specialty" });
-      return;
+      return res.status(500).send("Database error");
     }
-    res.status(200).json(results);
+    // Render the results using an EJS template
+    res.render("filtered_providers", { providers: results, specialty });
   });
 });
 
